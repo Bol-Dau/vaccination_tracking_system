@@ -151,7 +151,6 @@ Current Address: | {city}, {country}
         cursor.execute(f"""INSERT INTO vaccination_records(patient_id, hepatitis_B_I,hepatitis_B_II,hepatitis_B_III)
                        VALUES ({your_id}, NULL, NULL, NULL);""")
         conn.commit()
-  
 
 
     def update_patient_info(self):
@@ -887,4 +886,470 @@ Next vacciantion date: {line[7]}""")
                         if vaccine == "4":
                             break
                         continue
-        
+
+    def view_patient_info(self):
+        while True:
+            print("""
+========= VIEW PATIENT INFORMATION =========
++--------------------------------------------------+
+| 1. |  View by Name (Alphabetically)              |
+|----|---------------------------------------------|
+| 2. |  View by Upcoming Vaccination Date          |
+|----|---------------------------------------------|
+| 3. |  View by Unique Patient ID                  |
+|----|---------------------------------------------|
+| 4. |  Exit                                       |
++--------------------------------------------------+
+""")
+
+            choice = input("Choose an option (1-4): ").strip()
+
+            if not choice and not choice.isdigit():
+                print("Invalid input. Enter a valid input")
+                continue
+
+            if not choice == "1" and not choice == "2" and not choice == "3" and not choice == "4":
+                print("Invalid input. Choice range must be (1-4)")
+                continue
+
+            if choice == "4":
+                print("Exiting. Good bye")
+                exit(1)
+
+            # ----------------------- 1. BY NAME -----------------------
+            if choice == "1":
+                cursor.execute("SELECT * FROM patients ORDER BY first_name ASC")
+                rows = cursor.fetchall()
+                print("\n===== Patients Sorted by Name =====")
+                for row in rows:
+                    print(f"{row[0]}\t{row[1]}\t{row[2]}\t{row[3]}\t{row[4]}\t{row[5]}\t{row[6]}\t{row[7]}")
+            
+                while True:
+                    print("""
+==================================
+How do you wish to continue
+==================================
+                          
++-------------------------------------+
+| 1. |  Return to the previous menu   |
+|-------------------------------------|
+| 2. |  Exit                          |
++-------------------------------------+
+""")
+                    question = input("Please enter your choice: ")
+                    if not question or not question.isdigit():
+                        print("Invalid input. enter (1-2)")
+                        continue
+                    if not question == "2" and not question == "1":
+                        print("Invalid input. Enter 1/2")
+                    
+                    if question == "2":
+                        print("Exiting. Goodbye")
+                        exit(1)
+
+                    if question == "1":
+                        break
+                    continue
+
+            # ------------------ 2. UPCOMING VACCINES ------------------
+            if choice == "2":
+                cursor.execute("""
+                    SELECT p.patient_id, p.first_name, p.last_name, v.next_admin_date
+FROM patients p
+Join vaccination_records v
+           on p.patient_id = v.patient_id 
+Where v.next_admin_date >= "2024-01-01"
+ORDER BY v.next_admin_date ASC;   
+                """)
+                rows = cursor.fetchall()
+                print("\n===== Upcoming Vaccination Dates =====")
+                for row in rows:
+                    print(f"{row[0]}\t{row[1]}\t{row[2]}\t{row[3]}")
+                
+                while True:
+                    print("""
+==================================
+How do you wish to continue
+==================================
+                          
++-------------------------------------+
+| 1. |  Return to the previous menu   |
+|-------------------------------------|
+| 2. |  Exit                          |
++-------------------------------------+
+""")
+                    question = input("Please enter your choice: ")
+                    if not question or not question.isdigit():
+                        print("Invalid input. enter (1-2)")
+                        continue
+                    if not question == "2" and not question == "1":
+                        print("Invalid input. Enter 1/2")
+                    
+                    if question == "2":
+                        print("Exiting. Goodbye")
+                        exit(1)
+
+                    if question == "1":
+                        break
+                    continue
+
+
+
+            # ------------------ 3. BY UNIQUE PATIENT ID ------------------
+            if choice == "3":
+                patient_id = input("Enter patient ID: ").strip()
+                if not patient_id or not patient_id.isdigit():
+                    print("Invalid input. Enter a valid ID eg 10")
+                    continue
+
+                cursor.execute(f"""
+                    select patient_id from patients
+                    where patient_id={patient_id};""")
+                your_id = cursor.fetchall()
+                try:
+                    your_id = your_id[0][0]
+                except IndexError:
+                    print(f"Patient ID {patient_id} does not exist")
+                    continue
+                cursor.execute(f"""
+                select * from patients
+                where patient_id={patient_id};""")
+                information = cursor.fetchall()
+                for row in information:
+                    print(f"""
+===========================
+Patient details
+===========================
+-----------------------------------------
+Full name:       | {row[1]} {row[2]}
+-----------------------------------------
+Patient ID:      | {row[0]}
+-----------------------------------------
+Date of birth:   | {row[3]} 
+-----------------------------------------
+Patient Gender:  | {row[4]}
+-----------------------------------------
+Patient Contact: | {row[5]}
+-----------------------------------------
+Current Address: | {row[6]}, {row[7]}
+-----------------------------------------         
+""")
+
+                while True:
+                    print("""
+==================================
+How do you wish to continue
+==================================
+                          
++-------------------------------------+
+| 1. |  Return to the previous menu   |
+|-------------------------------------|
+| 2. |  Exit                          |
++-------------------------------------+
+""")
+                    question = input("Please enter your choice: ")
+                    if not question or not question.isdigit():
+                        print("Invalid input. enter (1-2)")
+                        continue
+                    if not question == "2" and not question == "1":
+                        print("Invalid input. Enter 1/2")
+                    
+                    if question == "2":
+                        print("Exiting. Goodbye")
+                        exit(1)
+
+                    if question == "1":
+                        break
+                    continue
+
+    def send_notifications(self):
+        while True:
+            print("""
+========================================================
+    WELCOME TO NOTIFICATION MANAGEMENT SYSTEM
+========================================================
+------------How would you like to continue--------------
+                
++------------------------------------------------------+
+| 1. |  Send patien a notification                     |
+|------------------------------------------------------|
+| 2. |  View the notification log                      |
+|------------------------------------------------------|
+| 3. |  View a patients notificatino history           |
+|------------------------------------------------------|
+| 4. |  Exit                                           |
++------------------------------------------------------+
+""")
+
+            while True:
+                view = input("Please enter your choice: ")
+                if view.lower() == "x":
+                    print("Exiting. Goodbye")
+                    exit(1)
+                if not view or not view.isdigit():
+                    print("Invalid Input. Please enter a valid input.\n")
+                    continue
+                if not view == "1" and not view == "2" and not view == "3" and not view == "4":
+                    print("Invalid input. Choice range must be (1-4)")
+                    continue
+                break
+
+            if view == "4":
+                print("Exiting. Goodbye")
+                exit(1)
+            
+            if view == "1":
+
+                while True:
+                    patient_id = input("Enter the patient ID of the patient whose details you wish to update: ").strip()
+                    if not patient_id or not patient_id.isdigit():
+                        print("Invalid input. Enter a valid ID eg 10")
+                        continue
+
+                    cursor.execute(f"""
+                        select patient_id from patients
+                        where patient_id={patient_id};""")
+                    your_id = cursor.fetchall()
+                    try:
+                        your_id = your_id[0][0]
+                    except IndexError:
+                        print(f"Patient ID {patient_id} does not exist")
+                        continue
+                    cursor.execute(f"""
+                    select * from patients
+                    where patient_id={patient_id};""")
+                    information = cursor.fetchall()
+                    for row in information:
+                        print(f"""
+===========================
+Patient details
+===========================
+-----------------------------------------
+Full name:       | {row[1]} {row[2]}
+-----------------------------------------
+Patient ID:      | {row[0]}
+-----------------------------------------
+Date of birth:   | {row[3]} 
+-----------------------------------------
+Patient Gender:  | {row[4]}
+-----------------------------------------
+Patient Contact: | {row[5]}
+-----------------------------------------
+Current Address: | {row[6]}, {row[7]}
+-----------------------------------------       
+""")
+                    cursor.execute(f"""
+                    select * from vaccination_records
+                                        where patient_id={patient_id};
+                    """)
+                    records = cursor.fetchall()
+                    print(" ")
+                    for line in records:
+                        print(f"""--------------------------------
+Vaccine         | Status
+--------------------------------
+Hepatitis B I   | {line[1]}
+--------------------------------
+Hepatitis B II  | {line[3]}
+--------------------------------
+Hepatitis B III | {line[5]}
+--------------------------------
+
+Next vacciantion date: {line[7]}""")
+
+                    break
+
+                while True:
+                    notification_type = input("Enter the notification type (Appointment/ Reminder): ").strip()
+                    if notification_type.lower() == "x":
+                        print("Exiting. Goodbye")
+                        exit(1)
+                    if not notification_type or not all(char.isalpha() or char.isspace() for char in notification_type):
+                        print("Invalid Input. Please enter a valid notification type.")
+                        continue
+                    if not notification_type.lower() == "appointment" and not notification_type.lower() == "reminder":
+                        print("The only supported notification types are Appointments and Reminders")
+                        continue
+                    print(f"Notification type entered: {notification_type}\n")
+                    break
+
+                while True:
+                    notification = input("Enter the message that you wish to send to your patient: ").strip()
+                    if notification.lower() == "x":
+                        print("Exiting. Goodbye")
+                        exit(1)
+                    if not re.fullmatch(r"[A-Za-z][A-Za-z-0-9- ]*", notification):
+                        print("Invalid Input. Please enter a valid notification.")
+                        continue
+                    print(f"Message entered: {notification}\n")
+                    break
+
+
+                cursor.execute(f"""
+                            insert into notifications(patient_id, notification_type, notification, sent_date)
+                            values ({patient_id}, "{notification_type}", "{notification}", "{datetime.now().date()}");
+                            """)
+                conn.commit()
+                
+                print(f"""======Congratulations=====
+Message sent successfully
+-------------------------
+Message Summary
+    Message:  {notification}
+    Date:     {datetime.now().date()}
+    Sent to:  {patient_id}
+    Status:   Sent
+-------------------------
+""")
+                while True:
+                    print("""
+==================================
+How do you wish to continue
+==================================
+                          
++-------------------------------------+
+| 1. |  Return to the previous menu   |
+|-------------------------------------|
+| 2. |  Exit                          |
++-------------------------------------+
+""")
+                    question = input("Please enter your choice: ")
+                    if not question or not question.isdigit():
+                        print("Invalid input. enter (1-2)")
+                        continue
+                    if not question == "2" and not question == "1":
+                        print("Invalid input. Enter 1/2")
+                    
+                    if question == "2":
+                        print("Exiting. Goodbye")
+                        exit(1)
+
+                    if question == "1":
+                        break
+                    continue
+
+            if view == "2":
+                while True:
+                    cursor.execute("""
+            SELECT * FROM notifications;
+            """)
+                    conn.commit()
+                    work = cursor.fetchall()
+                    print(work)
+                    for row in work:
+                        row = f"""{row[0]}  | {row[1]} | {row[2]} | {row[3]}                          | {row[4]}"""
+                        print(row)
+                    
+                    break
+
+                while True:
+                    print("""
+==================================
+How do you wish to continue
+==================================
+                          
++-------------------------------------+
+| 1. |  Return to the previous menu   |
+|-------------------------------------|
+| 2. |  Exit                          |
++-------------------------------------+
+""")
+                    question = input("Please enter your choice: ")
+                    if not question or not question.isdigit():
+                        print("Invalid input. enter (1-2)")
+                        continue
+                    if not question == "2" and not question == "1":
+                        print("Invalid input. Enter 1/2")
+                    
+                    if question == "2":
+                        print("Exiting. Goodbye")
+                        exit(1)
+
+                    if question == "1":
+                        break
+                    continue
+
+            if view == "3":
+                while True:
+                    patient_id = input("Enter the patient ID of the patient whose details you wish to update: ").strip()
+                    if not patient_id or not patient_id.isdigit():
+                        print("Invalid input. Enter a valid ID eg 10")
+                        continue
+
+                    cursor.execute(f"""
+                        select patient_id from patients
+                        where patient_id={patient_id};""")
+                    your_id = cursor.fetchall()
+                    try:
+                        your_id = your_id[0][0]
+                    except IndexError:
+                        print(f"Patient ID {patient_id} does not exist")
+                        continue
+                    cursor.execute(f"""
+                    select * from patients
+                    where patient_id={patient_id};""")
+                    information = cursor.fetchall()
+                    for row in information:
+                        print(f"""
+===========================
+Patient details
+===========================
+-----------------------------------------
+Full name:       | {row[1]} {row[2]}
+-----------------------------------------
+Patient ID:      | {row[0]}
+-----------------------------------------
+Date of birth:   | {row[3]} 
+-----------------------------------------
+Patient Gender:  | {row[4]}
+-----------------------------------------
+Patient Contact: | {row[5]}
+-----------------------------------------
+Current Address: | {row[6]}, {row[7]}
+-----------------------------------------         
+""")
+
+
+                    cursor.execute(f"""
+                                select notification_id, patient_id, notification_type, notification, sent_date from notifications where patient_id={patient_id}
+                                order by {4} desc;
+                                """)
+                    work = cursor.fetchall()
+                    print("=========Notification History=========")
+                    print(" ")
+                    for row in work:
+                        row = f"""====================================
+Type:      {row[2]}
+Date Sent: {row[4]}
+Message:   {row[3]}                 
+"""
+                        print(row)
+                    break
+
+                while True:
+                    print("""
+==================================
+How do you wish to continue
+==================================
+                          
++-------------------------------------+
+| 1. |  Return to the previous menu   |
+|-------------------------------------|
+| 2. |  Exit                          |
++-------------------------------------+
+""")
+                    question = input("Please enter your choice: ")
+                    if not question or not question.isdigit():
+                        print("Invalid input. enter (1-2)")
+                        continue
+                    if not question == "2" and not question == "1":
+                        print("Invalid input. Enter 1/2")
+                    
+                    if question == "2":
+                        print("Exiting. Goodbye")
+                        exit(1)
+
+                    if question == "1":
+                        break
+                    continue
+
