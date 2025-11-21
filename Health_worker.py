@@ -1353,3 +1353,110 @@ How do you wish to continue
                         break
                     continue
 
+    def view_solo_info(self):
+        while True:
+            patient_id = input("Enter patient ID: ").strip()
+            if not patient_id or not patient_id.isdigit():
+                print("Invalid input. Enter a valid ID eg 10")
+                continue
+
+            cursor.execute(f"""
+                    select patient_id from patients
+                    where patient_id={patient_id};""")
+            your_id = cursor.fetchall()
+            try:
+                your_id = your_id[0][0]
+            except IndexError:
+                print(f"Patient ID {patient_id} does not exist")
+                continue
+            cursor.execute(f"""
+                    select * from patients
+                    where patient_id={patient_id};""")
+            information = cursor.fetchall()
+            for row in information:
+                print(f"""
+===========================
+Patient details
+===========================
+-----------------------------------------
+Full name:       | {row[1]} {row[2]}
+-----------------------------------------
+Patient ID:      | {row[0]}
+-----------------------------------------
+Date of birth:   | {row[3]} 
+-----------------------------------------
+Patient Gender:  | {row[4]}
+-----------------------------------------
+Patient Contact: | {row[5]}
+-----------------------------------------
+Current Address: | {row[6]}, {row[7]}
+-----------------------------------------         
+""")
+            break
+
+    def Hospital_info(self):
+        unique_id = '#Hospital'
+        hospital_id = input("Enter the Hospital's Unique ID to update the hospital details: ").strip().lower()
+        
+        if not hospital_id or not hospital_id == unique_id.lower():
+            print("Invalid Hospital id!")
+            exit()
+        while True:
+            print("""
+===================================
+   WELCOME TO HOSPITAL INFO PAGE
+===================================
++---------------------------------+
+| 1. |  Update Hospital Name      |
+|---------------------------------|
+| 2. |  Update Hospital Address   |
+|---------------------------------|
+| 3. |  Update Hospital's Hotline |
+|---------------------------------|
+| 4. |  Update Contact Details    |
+|---------------------------------|
+| 5. |  Update Hospital's website |
+|---------------------------------|
+| 6. |  Exit                      |
++---------------------------------+
+""")
+
+            choice = input("Select an option 1-6: ")
+            
+            if choice == '1':
+                new_hospital_name = input("Enter the new Hospital's Name: ")
+                self.hospital_data['name'] = new_hospital_name
+                print("Hospital Name updated successfully.")
+                continue
+
+            elif choice == '2':
+                new_hospital_address = input("Enter the Hospital Address: ")
+                self.hospital_data['address'] = new_hospital_address
+                print("Hospital Address updated successfully.")
+                continue
+                
+            elif choice == '3':
+                new_hospital_hotline = input("Enter the Hospital's Hotline: ")
+                self.hospital_data['hotline'] = new_hospital_hotline
+                print("Hospital Hotline updated successfully.")
+                continue
+            
+            elif choice == '4':
+                new_contact_details = input("Enter the Contact Details: ")
+                self.hospital_data['contact'] = new_contact_details
+                print("Contact Details updated successfully.")
+                continue
+            
+            elif choice == '5':
+                updated_hospital_website = input("Enter the Hospital's Website: ")
+                self.hospital_data['website'] = updated_hospital_website
+                print("Hospital Website updated successfully.")
+                continue
+            
+            elif choice == '6':
+                print("Exiting the Hospital Info Page, Good Bye!")
+                break
+            
+            else:
+                print("Invalid option! Please select a valid option (1-6).")
+                continue
